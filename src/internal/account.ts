@@ -8,7 +8,7 @@
  * account namespace and without having a dependency cycle error.
  */
 import { AptosConfig } from "../api/aptosConfig";
-import { getAptosFullNode, paginateWithCursor } from "../client";
+import { getAptosFullNode, paginateWithCursor, paginateWithObfuscatedCursor } from "../client";
 import {
   AccountData,
   GetAccountCoinsDataResponse,
@@ -85,7 +85,7 @@ export async function getInfo(args: {
  * @param args.accountAddress - The address of the account whose modules are to be retrieved.
  * @param args.options - Optional parameters for pagination and ledger version.
  * @param args.options.limit - The maximum number of modules to retrieve (default is 1000).
- * @param args.options.offset - The starting point for pagination.
+ * @param args.options.offset - The starting point for pagination.  Note, this is obfuscated and is not an index.
  * @param args.options.ledgerVersion - The specific ledger version to query.
  */
 export async function getModules(args: {
@@ -94,13 +94,13 @@ export async function getModules(args: {
   options?: PaginationArgs & LedgerVersionArg;
 }): Promise<MoveModuleBytecode[]> {
   const { aptosConfig, accountAddress, options } = args;
-  return paginateWithCursor<{}, MoveModuleBytecode[]>({
+  return paginateWithObfuscatedCursor<{}, MoveModuleBytecode[]>({
     aptosConfig,
     originMethod: "getModules",
     path: `accounts/${AccountAddress.from(accountAddress).toString()}/modules`,
     params: {
       ledger_version: options?.ledgerVersion,
-      start: options?.offset,
+      offset: options?.offset,
       limit: options?.limit ?? 1000,
     },
   });
@@ -196,7 +196,7 @@ export async function getTransactions(args: {
  * @param args.aptosConfig - The configuration settings for Aptos.
  * @param args.accountAddress - The address of the account to fetch resources for.
  * @param args.options - Optional pagination and ledger version parameters.
- * @param args.options.offset - The starting point for pagination.
+ * @param args.options.offset - The starting point for pagination.  Note, this is obfuscated and is not an index.
  * @param args.options.limit - The maximum number of resources to retrieve (default is 999).
  * @param args.options.ledgerVersion - The specific ledger version to query.
  */
@@ -206,13 +206,13 @@ export async function getResources(args: {
   options?: PaginationArgs & LedgerVersionArg;
 }): Promise<MoveResource[]> {
   const { aptosConfig, accountAddress, options } = args;
-  return paginateWithCursor<{}, MoveResource[]>({
+  return paginateWithObfuscatedCursor<{}, MoveResource[]>({
     aptosConfig,
     originMethod: "getResources",
     path: `accounts/${AccountAddress.from(accountAddress).toString()}/resources`,
     params: {
       ledger_version: options?.ledgerVersion,
-      start: options?.offset,
+      offset: options?.offset,
       limit: options?.limit ?? 999,
     },
   });
